@@ -17,7 +17,12 @@
 
 -- TODO: Write your query below
 
-
+SELECT ss.name,
+       ss.routes
+FROM nyc_subway_stations AS ss
+JOIN nyc_neighborhoods AS n
+  ON ST_Intersects(ss.geom, n.geom)
+WHERE n.name = 'East Village';
 
 
 -- Exercise 2: What are all the neighborhoods served by the 7-train?
@@ -40,7 +45,12 @@
 
 -- TODO: Write your query below
 
-
+SELECT DISTINCT n.name AS neighborhood_name
+FROM nyc_subway_stations AS ss
+JOIN nyc_neighborhoods AS n
+  ON ST_Intersects(ss.geom, n.geom)
+WHERE ss.routes LIKE '%7%'
+ORDER BY neighborhood_name;
 
 
 -- Exercise 3: How many people live in the Financial District?
@@ -56,7 +66,11 @@
 
 -- TODO: Write your query below
 
-
+SELECT SUM(cb.popn_total) AS total_population
+FROM nyc_census_blocks AS cb
+JOIN nyc_neighborhoods AS n
+  ON ST_Intersects(cb.geom, n.geom)
+WHERE n.name = 'Financial District';
 
 
 
@@ -76,5 +90,12 @@
 
 -- TODO: Write your query below
 
-
+SELECT n.name,
+       SUM(cb.popn_total) / (ST_Area(n.geom) / 1000000.0) AS population_density_per_sqkm
+FROM nyc_census_blocks AS cb
+JOIN nyc_neighborhoods AS n
+  ON ST_Intersects(cb.geom, n.geom)
+WHERE n.name IN ('East Village', 'West Village')
+GROUP BY n.name, n.geom
+ORDER BY n.name;
 
